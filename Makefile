@@ -5,10 +5,11 @@ VERSION ?= 0.0.0
 
 test:
 
-test-prerequisites:
+test-prerequisites: install-tools
 
 install-tools:
-
+	go get github.com/onsi/ginkgo/ginkgo
+	
 ### TEST ####################################################################
 
 test-parsertk:
