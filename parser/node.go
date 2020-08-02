@@ -27,6 +27,10 @@ func NewNode(typ NodeType, value interface{}, startOffset, length int) *Node {
 	}
 }
 
+func (s *Node) Type() NodeType {
+	return s.nodeType
+}
+
 func (s *Node) Parent() *Node {
 	return s.parent
 }
