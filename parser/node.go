@@ -74,6 +74,10 @@ func (s *Node) AddChild(typ NodeType, value interface{}, startOffset, length int
 	return &child
 }
 
+func (s *Node) Value() interface{} {
+	return s.value
+}
+
 func DumpTree(node *Node) {
 	fmt.Printf("%s[%s] %v\n", strings.Repeat("  ", node.Depth()), node.nodeType, node.value)
 	for _, child := range node.children {
