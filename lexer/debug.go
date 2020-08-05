@@ -22,7 +22,7 @@ func (s *DebugPrintingVisitor) Visit(token Token) {
 		printer = s.printer
 	} else {
 		printer = func(tok Token) string {
-			return fmt.Sprintf("%s: '%s'", tok.Typ, tok.Value)
+			return fmt.Sprintf("%s: '%v'", tok.Typ, tok.Value)
 		}
 	}
 	formattedToken := printer(token)
