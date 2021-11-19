@@ -110,6 +110,7 @@ func ConsumeString(typ TokenType) TokenConsumer {
 		if !(delimiter == '"' || delimiter == '\'') {
 			return Token{}, false
 		}
+		value.WriteRune(delimiter)
 		var escaped bool = false
 		for {
 			if input.EOF() {
@@ -128,6 +129,7 @@ func ConsumeString(typ TokenType) TokenConsumer {
 				}
 			} else {
 				if r == delimiter {
+					value.WriteRune(delimiter)
 					return t(typ, value.String()), true
 				}
 			}
@@ -137,5 +139,8 @@ func ConsumeString(typ TokenType) TokenConsumer {
 }
 
 func t(typ TokenType, value string) Token {
-	return Token{Typ: typ, Value: value}
+	return Token{
+		Typ:   typ,
+		Value: value,
+	}
 }

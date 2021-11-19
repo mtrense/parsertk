@@ -5,32 +5,41 @@ type TokenType string
 type Token struct {
 	Typ    TokenType
 	Value  string
-	Offset uint
-	Line   uint
-	Column uint
+	Offset int
+	Line   int
+	Column int
 }
 
-type LexerVisitor func(token Token)
+func (s *Token) Length() int {
+	return len(s.Value)
+}
+
+func (s *Token) End() int {
+	return s.Offset + len(s.Value)
+}
+
+type Visitor func(token Token)
 
 type TokenConsumer func(BufferedRuneReader) (Token, bool)
 
-type LexerState interface {
-}
-
-func LexStatic(input BufferedRuneReader, visitor LexerVisitor, eofToken, errorToken TokenType, validTokens ...TokenConsumer) {
+// LexStatic scans the input using one fixed set of valid Tokens.
+func LexStatic(input BufferedRuneReader, visitor Visitor, eofToken, errorToken TokenType, validTokens ...TokenConsumer) {
 	for {
 		var (
 			tok   Token
 			valid bool = false
 		)
 		if input.EOF() {
-			visitor(t(eofToken, ""))
+			tok = t(eofToken, "")
+			tok.Offset = input.Offset()
+			visitor(tok)
 			break
 		}
 		for _, tokenConsumer := range validTokens {
-			input.Mark()
+			offset := input.Mark()
 			tok, valid = tokenConsumer(input)
 			if valid {
+				tok.Offset = offset
 				visitor(tok)
 				break
 			} else {
@@ -38,7 +47,9 @@ func LexStatic(input BufferedRuneReader, visitor LexerVisitor, eofToken, errorTo
 			}
 		}
 		if !valid {
-			visitor(t(errorToken, "No valid token found"))
+			tok = t(errorToken, "No valid token found")
+			tok.Offset = input.Offset()
+			visitor(tok)
 			break
 		}
 	}

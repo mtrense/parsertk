@@ -146,7 +146,7 @@ var _ = Describe("ConsumeString", func() {
 		reader := StringReader("'abcdef'")
 		tok, valid := ConsumeString(TokenTypeString)(reader)
 		Expect(tok.Typ).To(Equal(TokenTypeString))
-		Expect(tok.Value).To(Equal("abcdef"))
+		Expect(tok.Value).To(Equal("'abcdef'"))
 		Expect(valid).To(BeTrue())
 	})
 	It("returns an invalid token on failed tokenization", func() {

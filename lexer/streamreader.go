@@ -1,7 +1,8 @@
 package lexer
 
 type BufferedRuneReader interface {
-	Mark()
+	Mark() int
+	Offset() int
 	Read() rune
 	Peek() rune
 	Rewind()
@@ -15,8 +16,13 @@ type stringReader struct {
 	marks  []int
 }
 
-func (s *stringReader) Mark() {
+func (s *stringReader) Mark() int {
 	s.marks = append(s.marks, s.offset)
+	return s.offset
+}
+
+func (s *stringReader) Offset() int {
+	return s.offset
 }
 
 func (s *stringReader) Read() rune {

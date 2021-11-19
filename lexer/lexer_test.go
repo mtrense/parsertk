@@ -43,99 +43,99 @@ var _ = Describe("Lex", func() {
 	It("tokenizes an empty input string", func() {
 		LexStatic(StringReader(""), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
 		Expect(len(rv.tokens)).To(Equal(1))
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes an empty expression", func() {
 		LexStatic(StringReader("()"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
 		Expect(len(rv.tokens)).To(Equal(3))
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeStart, "("),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeStart, "(").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a nested empty expression", func() {
 		LexStatic(StringReader("(())"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
 		Expect(len(rv.tokens)).To(Equal(5))
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeStart, "("),
-			t(TokenTypeStart, "("),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeStart, "(").
+			T(TokenTypeStart, "(").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a series of spaces", func() {
 		LexStatic(StringReader("   "), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeWhitespace, "   "),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeWhitespace, "   ").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a series of different whitespace characters", func() {
 		LexStatic(StringReader(" \n\t "), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeWhitespace, " \n\t "),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeWhitespace, " \n\t ").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a single symbol", func() {
 		LexStatic(StringReader("test"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeSymbol, "test"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeSymbol, "test").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes an expression with a single symbol", func() {
 		LexStatic(StringReader("(test)"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeStart, "("),
-			t(TokenTypeSymbol, "test"),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeStart, "(").
+			T(TokenTypeSymbol, "test").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes an expression with a single symbol and whitespace around it", func() {
 		LexStatic(StringReader("( test )"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeStart, "("),
-			t(TokenTypeWhitespace, " "),
-			t(TokenTypeSymbol, "test"),
-			t(TokenTypeWhitespace, " "),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeStart, "(").
+			T(TokenTypeWhitespace, " ").
+			T(TokenTypeSymbol, "test").
+			T(TokenTypeWhitespace, " ").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes an expression with a single symbol with special characters", func() {
 		LexStatic(StringReader("($t%e&s0t9)"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeStart, "("),
-			t(TokenTypeSymbol, "$t%e&s0t9"),
-			t(TokenTypeEnd, ")"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeStart, "(").
+			T(TokenTypeSymbol, "$t%e&s0t9").
+			T(TokenTypeEnd, ")").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a single string", func() {
 		LexStatic(StringReader("\"abcdef\""), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeString, "abcdef"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeString, "\"abcdef\"").
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("tokenizes a single string with escaped characters in it", func() {
 		LexStatic(StringReader("\"abc\\\"def\""), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeString, "abc\"def"),
-			t(TokenTypeEOF, ""),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			TL(TokenTypeString, "\"abc\"def\"", 10).
+			T(TokenTypeEOF, "").
+			Build()))
 	})
 	It("produces an error token when string is not closed", func() {
 		LexStatic(StringReader("\"abcdef"), (&rv).visit, TokenTypeEOF, TokenTypeError, SexpTokens...)
-		Expect(rv.tokens).To(Equal([]Token{
-			t(TokenTypeError, "No valid token found"),
-		}))
+		Expect(rv.tokens).To(Equal(NewTokenGenerator().
+			T(TokenTypeError, "No valid token found").
+			Build()))
 	})
 })
 
