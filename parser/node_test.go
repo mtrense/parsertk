@@ -8,31 +8,26 @@ import (
 var _ = Describe("Node", func() {
 	It("is root when it has no parent", func() {
 		subject := Node{
-			nodeType: "TEST",
-			parent:   nil,
+			parent: nil,
 		}
 		Expect(subject.IsRoot()).To(BeTrue())
 	})
 	It("is not root when it has a parent", func() {
 		root := &Node{
-			nodeType: "TEST",
-			parent:   nil,
+			parent: nil,
 		}
 		subject := Node{
-			nodeType: "TEST",
-			parent:   root,
+			parent: root,
 		}
 		Expect(subject.IsRoot()).To(BeFalse())
 	})
 	It("returns the root node", func() {
 		subject := Node{
-			nodeType: "TEST",
-			parent:   nil,
+			parent: nil,
 		}
 		root := &Node{
-			nodeType: "TEST",
-			parent:   nil,
-			children: []*Node{
+			parent: nil,
+			children: []INode{
 				&subject,
 			},
 		}
@@ -41,13 +36,11 @@ var _ = Describe("Node", func() {
 	})
 	It("returns the correct depth", func() {
 		subject := Node{
-			nodeType: "TEST",
-			parent:   nil,
+			parent: nil,
 		}
 		root := &Node{
-			nodeType: "TEST",
-			parent:   nil,
-			children: []*Node{
+			parent: nil,
+			children: []INode{
 				&subject,
 			},
 		}
@@ -57,27 +50,36 @@ var _ = Describe("Node", func() {
 	})
 	It("is leaf when it has no children", func() {
 		subject := Node{
-			nodeType: "TEST",
-			children: make([]*Node, 0),
+			children: make([]INode, 0),
 		}
 		Expect(subject.IsLeaf()).To(BeTrue())
 	})
 	It("is no leaf when it has children", func() {
-		child := &Node{
-			nodeType: "TEST",
-		}
+		child := &Node{}
 		subject := Node{
-			nodeType: "TEST",
-			children: []*Node{child},
+			children: []INode{child},
 		}
 		Expect(subject.IsLeaf()).To(BeFalse())
 	})
 	It("creates children with AddChild", func() {
-		subject := &Node{
-			nodeType: "TEST",
+		subject := &Node{}
+		child1 := &Node{
+			parent:   subject,
+			children: make([]INode, 0),
+			bracket: Bracket{
+				StartOffset: 0,
+				Length:      0,
+			},
 		}
-		child1 := subject.AddChild("TEST", nil, 0, 0)
-		child2 := subject.AddChild("TEST", nil, 0, 0)
+		child2 := &Node{
+			parent:   subject,
+			children: make([]INode, 0),
+			bracket: Bracket{
+				StartOffset: 0,
+				Length:      0,
+			},
+		}
+		subject.AddChild(child1, child2)
 		Expect(subject.IsLeaf()).To(BeFalse())
 		Expect(subject.IsRoot()).To(BeTrue())
 		Expect(len(subject.Children())).To(Equal(2))

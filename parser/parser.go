@@ -6,23 +6,22 @@ import (
 	"github.com/mtrense/parsertk/lexer"
 )
 
-type NodeFactory func(cn *Node, tok lexer.Token) *Node
+type NodeFactory func(cn INode, tok lexer.Token) INode
 
 type Parser struct {
-	rootNode      *Node
-	currentNode   *Node
+	rootNode      INode
+	currentNode   INode
 	nodeFactories map[lexer.TokenType]NodeFactory
 }
 
-var Ignore = func(cn *Node, tok lexer.Token) *Node {
+var Ignore NodeFactory = func(cn INode, tok lexer.Token) INode {
 	return nil
 }
 
-func NewParser(rootType NodeType) Parser {
-	root := NewNode(rootType, nil, 0, 0)
-	return Parser{
-		rootNode:      root,
-		currentNode:   root,
+func NewParser(rootNode INode) *Parser {
+	return &Parser{
+		rootNode:      rootNode,
+		currentNode:   rootNode,
 		nodeFactories: make(map[lexer.TokenType]NodeFactory),
 	}
 }
@@ -32,6 +31,7 @@ func (s *Parser) RegisterFactory(typ lexer.TokenType, factory NodeFactory) *Pars
 	return s
 }
 
+// Visit implements lexer.LexerVisitor
 func (s *Parser) Visit(tok lexer.Token) {
 	factory, ok := s.nodeFactories[tok.Typ]
 	if ok {
@@ -44,6 +44,6 @@ func (s *Parser) Visit(tok lexer.Token) {
 	}
 }
 
-func (s *Parser) RootNode() *Node {
+func (s *Parser) RootNode() INode {
 	return s.rootNode
 }

@@ -2,36 +2,43 @@ package parser
 
 import (
 	"fmt"
+	"github.com/mtrense/parsertk/lexer"
 	"strings"
 )
 
-type NodeType string
-
-type Node struct {
-	nodeType    NodeType
-	parent      *Node
-	children    []*Node
-	value       interface{}
-	startOffset int
-	length      int
+type Bracket struct {
+	StartOffset int
+	Length      int
 }
 
-func NewNode(typ NodeType, value interface{}, startOffset, length int) *Node {
-	return &Node{
-		nodeType:    typ,
-		parent:      nil,
-		children:    make([]*Node, 0),
-		value:       value,
-		startOffset: startOffset,
-		length:      length,
+type INode interface {
+	Parent() INode
+	Root() INode
+	IsRoot() bool
+	Depth() int
+	Children() []INode
+	IsLeaf() bool
+	Bracket() Bracket
+	AddChild(child ...INode)
+	NodeType() string
+	String() string
+}
+
+type Node struct {
+	parent   INode
+	children []INode
+	bracket  Bracket
+}
+
+func NewNode(parent INode, tok lexer.Token) Node {
+	return Node{
+		parent:   parent,
+		children: make([]INode, 0),
+		bracket:  Bracket{StartOffset: tok.Offset, Length: tok.Length()},
 	}
 }
 
-func (s *Node) Type() NodeType {
-	return s.nodeType
-}
-
-func (s *Node) Parent() *Node {
+func (s *Node) Parent() INode {
 	return s.parent
 }
 
@@ -39,7 +46,7 @@ func (s *Node) IsRoot() bool {
 	return s.parent == nil
 }
 
-func (s *Node) Root() *Node {
+func (s *Node) Root() INode {
 	if s.IsRoot() {
 		return s
 	}
@@ -53,34 +60,33 @@ func (s *Node) Depth() int {
 	return s.Parent().Depth() + 1
 }
 
+func (s *Node) Children() []INode {
+	return s.children
+}
+
 func (s *Node) IsLeaf() bool {
 	return len(s.children) == 0
 }
 
-func (s *Node) Children() []*Node {
-	return s.children
+func (s *Node) Bracket() Bracket {
+	return s.bracket
 }
 
-func (s *Node) AddChild(typ NodeType, value interface{}, startOffset, length int) *Node {
-	child := Node{
-		nodeType:    typ,
-		parent:      s,
-		children:    make([]*Node, 0),
-		value:       value,
-		startOffset: startOffset,
-		length:      length,
-	}
-	s.children = append(s.children, &child)
-	return &child
+func (s *Node) NodeType() string {
+	return ""
 }
 
-func (s *Node) Value() interface{} {
-	return s.value
+func (s *Node) String() string {
+	return ""
 }
 
-func DumpTree(node *Node) {
-	fmt.Printf("%s[%s] %v\n", strings.Repeat("  ", node.Depth()), node.nodeType, node.value)
-	for _, child := range node.children {
+func (s *Node) AddChild(child ...INode) {
+	s.children = append(s.children, child...)
+}
+
+func DumpTree(node INode) {
+	fmt.Printf("%s[%s] %v\n", strings.Repeat("  ", node.Depth()), node.NodeType(), node.String())
+	for _, child := range node.Children() {
 		DumpTree(child)
 	}
 }
